@@ -52,6 +52,16 @@ public class Product {
         this.status = ProductStatus.DRAFT;
     }
 
+    /** Business rules (who may edit, status checks) live in ProductService. */
+    public void changeDetails(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public void archive() {
+        this.status = ProductStatus.ARCHIVED;
+    }
+
     public UUID getId() {
         return id;
     }
