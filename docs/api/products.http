@@ -1,0 +1,46 @@
+﻿@base = http://localhost:8080/api/v1/products
+@sellerId = e065d914-5f21-4665-a6d9-7d0309247210
+@productId = REPLACE-WITH-A-PRODUCT-ID
+
+### Create product -> 201 + Location
+POST {{base}}
+Content-Type: application/json
+
+{
+  "sellerId": "{{sellerId}}",
+  "name": "Sample Game Key",
+  "description": "Created from products.http"
+}
+
+### List products -> 200
+GET {{base}}?sellerId={{sellerId}}&page=0&size=10
+
+### Get product -> 200
+GET {{base}}/{{productId}}?sellerId={{sellerId}}
+
+### Get with a different seller -> 404
+GET {{base}}/{{productId}}?sellerId=00000000-0000-0000-0000-000000000001
+
+### Partial update -> 200 (409 if archived)
+PATCH {{base}}/{{productId}}?sellerId={{sellerId}}
+Content-Type: application/json
+
+{ "name": "Renamed Key" }
+
+### Empty patch -> 400
+PATCH {{base}}/{{productId}}?sellerId={{sellerId}}
+Content-Type: application/json
+
+{}
+
+### Archive -> 200, repeating it -> 409
+POST {{base}}/{{productId}}/archive?sellerId={{sellerId}}
+
+### Oversized page -> 400
+GET {{base}}?sellerId={{sellerId}}&size=101
+
+### Blank name -> 400
+POST {{base}}
+Content-Type: application/json
+
+{ "sellerId": "{{sellerId}}", "name": "   " }
