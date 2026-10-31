@@ -41,15 +41,11 @@ Modular monolith, package-by-feature under `com.keyflow`:
 |---|---|---|
 
 | V1 | create initial schema (sellers, products, inventory\_databases, digital\_keys) | Applied; never edit |
+| V2 | enforce same seller for digital keys (composite foreign keys, seller_id on digital_keys) | Applied; never edit |
 
 
 
-Known gap for Phase 3: `digital\_keys` has independent foreign keys to `products` and
-
-`inventory\_databases`, so nothing guarantees both belong to the same seller. Fix with a new
-
-migration before building allocation.
-
+Known gap for Phase 3: Resolved by V2.
 
 
 \## Implemented API (development only, unauthenticated)
@@ -79,13 +75,13 @@ Error shape: `timestamp, status, code, message, path, fieldErrors\[]`.
 
 
 ## Test status (actually executed)
-- `.\mvnw.cmd clean test`: 43 tests, 0 failures, 0 errors (2026-10-31).
+- `.\mvnw.cmd clean test`: 47 tests, 0 failures, 0 errors (2026-10-31).
   - 1 context load, 7 error handler, 11 service (mocks), 17 controller (mocks)
   - 7 PostgreSQL-backed repository tests (`ProductRepositoryPostgresTest`, Testcontainers, postgres:17)
 - Repository tests verify: database-generated createdAt, status stored as string, ownership query,
   seller-scoped paging and newest-first ordering, unique email, foreign key, and status check constraints.
 - Testcontainers tests need Docker Desktop running. They never touch the dev database.
-
+-4 schema integrity tests (SchemaIntegrityPostgresTest): same-seller foreign keys, null seller_id
 
 
 ## Manual verification (2026-10-31, PowerShell script against the running dev app)
