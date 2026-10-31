@@ -86,13 +86,14 @@ Error shape: `timestamp, status, code, message, path, fieldErrors\[]`.
 
 
 
-\## Manual verification
-
-\- Verified: create returned 201 with Location and DRAFT; database row confirmed.
-
-\- Verified: after update + archive calls, the database showed the new name, unchanged description, status ARCHIVED.
-
-\- Not yet run manually: list, get, and the error status codes (404 other seller, 400 empty patch, 400 oversize page, 409 repeat archive, 409 edit archived).
+## Manual verification (2026-10-31, PowerShell script against the running dev app)
+All results matched expectations:
+- Create returned DRAFT; list showed newest-first ordering and correct paging fields; get returned the product.
+- Partial update changed the name and kept the description.
+- Error codes: other-seller get 404, empty patch 400, page size 101 400, list without sellerId 400,
+  malformed id 400, blank name 400, unknown seller 404.
+- Archive returned ARCHIVED; archiving again 409; editing an archived product 409.
+- Earlier (2026-10-29): the database was confirmed to hold the renamed, archived product.
 
 
 
@@ -109,6 +110,10 @@ Error shape: `timestamp, status, code, message, path, fieldErrors\[]`.
 \- Maven prints HTTP 401 warnings for Flyway community repositories; harmless so far.
 
 \- Mockito self-attach warning during tests; harmless on JDK 24 for now.
+
+- Timezone: the JVM reports `Asia/Calcutta`, which PostgreSQL 17 rejects ("invalid value for parameter TimeZone").
+  Fix per machine: `-Duser.timezone=Asia/Kolkata` as a VM option in the IntelliJ run configuration, or
+  `$env:JAVA_TOOL_OPTIONS` in PowerShell. Tests started from IntelliJ need the same option.
 
 
 
@@ -146,17 +151,11 @@ $env:SPRING\_PROFILES\_ACTIVE = "dev"
 
 
 
-\## Remaining work
+## Remaining work
+1. PostgreSQL-backed repository/integration tests (Testcontainers proposed; dependency approval pending).
+2. Open a pull request for `feature/product-api` into `main`.
+3. Phase 3: inventory, encrypted keys, same-seller integrity migration.
 
-1\. PostgreSQL-backed repository/integration tests (Testcontainers proposed, dependency pending approval).
-
-2\. Run the outstanding manual checks above.
-
-3\. Phase 3: inventory, encrypted keys, same-seller integrity migration.
-
-
-
-\## Exact next step
-
-Run `docs/api/products.http` against the dev app and record results here.
+## Exact next step
+Decide on Testcontainers, add repository tests, then open the PR.
 
