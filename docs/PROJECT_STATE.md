@@ -78,11 +78,13 @@ Error shape: `timestamp, status, code, message, path, fieldErrors\[]`.
 
 
 
-\## Test status (actually executed)
-
-\- `.\\mvnw.cmd clean test`: 36 tests, 0 failures, 0 errors (1 context, 7 handler, 11 service, 17 controller).
-
-\- Controller/service tests use mocks. There are no PostgreSQL-backed repository tests yet.
+## Test status (actually executed)
+- `.\mvnw.cmd clean test`: 43 tests, 0 failures, 0 errors (2026-10-31).
+  - 1 context load, 7 error handler, 11 service (mocks), 17 controller (mocks)
+  - 7 PostgreSQL-backed repository tests (`ProductRepositoryPostgresTest`, Testcontainers, postgres:17)
+- Repository tests verify: database-generated createdAt, status stored as string, ownership query,
+  seller-scoped paging and newest-first ordering, unique email, foreign key, and status check constraints.
+- Testcontainers tests need Docker Desktop running. They never touch the dev database.
 
 
 
@@ -143,19 +145,20 @@ $env:SPRING\_PROFILES\_ACTIVE = "dev"
 
 \- No authentication or authorization; client-supplied `sellerId` is development-only.
 
-\- No concurrency tests. No PostgreSQL-backed repository tests.
+\- No concurrency tests.
 
-\- `DataIntegrityViolationException` to 409 path is not yet exercised by a test.
+\- The `DataIntegrityViolationException` to 409 mapping is not yet tested through HTTP
+  (the database constraints themselves are tested).
 
 \- Status ACTIVE exists in the schema but no endpoint activates a product yet.
 
 
 
 ## Remaining work
-1. PostgreSQL-backed repository/integration tests (Testcontainers proposed; dependency approval pending).
-2. Open a pull request for `feature/product-api` into `main`.
-3. Phase 3: inventory, encrypted keys, same-seller integrity migration.
+1. Open a pull request for `feature/product-api` into `main`.
+2. Phase 3: V2 migration so a digital key's product and inventory database belong to the same seller,
+   then inventory database APIs, CSV import, encrypted key storage.
 
 ## Exact next step
-Decide on Testcontainers, add repository tests, then open the PR.
+Open the PR, then design the V2 same-seller integrity migration.
 
